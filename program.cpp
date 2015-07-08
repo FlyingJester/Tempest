@@ -7,8 +7,12 @@
 namespace Tempest {
 
 void Program(CPU &cpu, IO &io, struct Unit &unit){
+
     io.skipWhitespace();
     unit.name = io.getName();
+
+    io.emitLine(cpu.beginCode(unit));
+
     io.skipWhitespace();
     io.match(':');
     io.skipWhitespace();
@@ -19,6 +23,9 @@ void Program(CPU &cpu, IO &io, struct Unit &unit){
     }while(!io.peek('.'));
     
     io.match('.');
+    
+    io.emitLine(cpu.beginData(unit));
+    io.emitLine(cpu.writeVariables(unit));
     
 }
 

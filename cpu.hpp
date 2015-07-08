@@ -26,10 +26,15 @@ public:
     
     virtual unsigned pointerSize() const { return 8; }
     virtual unsigned nativeWordSize() const { return 8; }
+    virtual std::string jumpZero(const std::string &label, const std::string &note) = 0;
     
     virtual std::string label(const std::string &l, const std::string &){
         return l + ':';
     }
+    
+    virtual std::string beginCode(const struct Unit &unit) = 0;
+    virtual std::string beginData(const struct Unit &unit) = 0;
+    virtual std::string writeVariables(const struct Unit &unit) = 0;
     
     static CPU *createCPU(std::string name);
 

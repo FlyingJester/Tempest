@@ -2,6 +2,7 @@
 #include "type.hpp"
 #include "variable.hpp"
 #include "declaration.hpp"
+#include "expression.hpp"
 #include "cpu.hpp"
 #include "io.hpp"
 #include "unit.hpp"
@@ -20,6 +21,27 @@ void Identifier(CPU &cpu, IO &io, struct Unit &unit){
     io.skipWhitespace();
     if(RT==Nano && name=="nanoroutine")
         Routine<Nano, false> (cpu, io, unit);
+    else if(name=="if"){
+        const std::string jl = "if_label_" + std::to_string(unit.label_index);
+        unit.label_index++;
+        
+        io.match('(');
+        
+        Expression(cpu, io, unit);
+        
+        io.match(')');
+        io.skipWhitespace();
+        io.match(':');
+        io.emitLine(cpu.jumpZero(jl, "if-statement begin"));
+        
+        do{
+            io.skipWhitespace();
+            Identifier<Sub>(cpu, io, unit);
+        }while(!io.peek('.'));
+        io.skipWhitespace();
+        io.emitLine(cpu.label(jl, "if-statement end"));
+        io.match('.');
+    }
     else{
         if(name=="assigned")
             Declaration(cpu, io, unit);
@@ -59,7 +81,9 @@ void Routine(CPU &cpu, IO &io, struct Unit &unit){
     /* TODO: Write variables */
     if(RT!=Sub)
         unit.Functions.pop_back();
-    
+    else
+        unit.label_index = 0;
+
 }
 
 }

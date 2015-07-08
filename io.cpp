@@ -41,7 +41,7 @@ void IO::abort(const std::string &msg){
 
 void IO::pullChar(){
     c_ = fgetc(in);
-
+    
     if(c_=='\n'){
         line++;
         column = 0;
@@ -49,7 +49,10 @@ void IO::pullChar(){
     else if(c_=='\r');
     else if(c_=='\t') column+=4;
     else column++;
-
+    
+    if(c_=='%'){
+        while(c_!='\n') pullChar();
+    }
 }
 
 uint64_t IO::getNumber(){

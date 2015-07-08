@@ -26,6 +26,12 @@ public:
     std::string multiply(const std::string &note) override;
     std::string divide(const std::string &note) override;
     std::string remainder(const std::string &note) override;
+
+    std::string jumpZero(const std::string &label, const std::string &note) override;
+    
+    std::string beginCode(const struct Unit &unit) override;
+    std::string beginData(const struct Unit &unit) override;
+    std::string writeVariables(const struct Unit &unit) override;
     
 };
 
