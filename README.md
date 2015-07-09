@@ -9,6 +9,7 @@ Tempest is a compiler for an experimental language called "Pluto". It is a work 
  * Sized Integers
  * Arrays (called Scalars)
  * Structured Data (called Complexes)
+ * Branch statements
 
 Features still unimplemented:
  * Function Arguments
@@ -26,14 +27,29 @@ Scalars are arrays of homogenously sized data. Scalars of integrals and floating
 Complexes are structures of data. A complex is simply a pair of data, which can be of any type. Complex structures are formed of trees
 of complexes.
 
+All variables are single-assignment, but can be declared and then assigned later. Once a variable has been assigned to, it may
+not be modified. For non-integral types (scalars and complexes), the variable must have all its components assigned at the same 
+assignment. For a complex, this can be as simple as assigned two other variables and then assigning the complex to hold these two
+variables. The same can be done for all of a scalar's elements.
+
 Pluto has some functional aspects. A function in a more traditional sense is called a "subroutine". Subroutines cannot be called
 recursively, and cannot be declared in a nested manner.
 A second type of function called a "nanoroutine" is supported. Nanoroutines can only be declared nested within subroutines, and
 can only be called from within their own subroutine. A nanoroutine is more like a coroutine, and calls to nanoroutines do not grow the
-stack. All nested calls to nanoroutines share the same argument variables.
+stack. However, returning from a recursive nanoroutine will return to the original nanoroutine call, rather than to the previous call
+of the nanoroutine.
+Calling from one nanoroutine to another will still grow the stack, and will return normally to the place in the calling nanoroutine where
+the other nanoroutine was called.
+In this way, a nanoroutine can be thought of similarly to a goto-like statement with scoped arguments and a return value.
 
-Pluto has only two control structures, the nanoroutine and a branch statement. All loops are performed using branches and nanoroutine
-calls. 
+Pluto has only two control structures, the nanoroutine and a branch statement. All loops are performed using branches and recursive 
+nanoroutine calls. Subroutines cannot be recursive, although a subroutine can simply call one of its nonroutines recursively.
+
+It is of note that many aspects of features that are optional in other languages, like return types and call arguments, are required
+in Pluto. Every routine must have at least one argument and must declare a return type (although a return value can just be garbage).
+All expressions must have at least one statement (something akin to `for(;;)` is not allowed--its odd for nothing be considered "true" or
+"false"). This makes the syntax simpler, and allows for some syntactical conventions to be reused in a non-ambiguous way that gives
+notational orthogonality without adding too much complexity.
 
 Types
 -----
@@ -142,6 +158,56 @@ lists and arrays are noted somewhat differently:
 The notation of an explicitly empty list is mostly to keep its notation inside other lists and inside arrays consistent with how
 arrays and integers are noted.
 
+Conditionals
+------------
+
+Because Pluto uses nanoroutines for loops, the only control directive is a branch statement. This takes the following form:
+
+```
+if <conditional> :
+    % ...
+.
+```
+
+This lets you create loop structures by conditionally jumping to nanoroutines. One advantage for some situations of this
+approach is that these loop-like structures now have a return value, and allow arbitrary arguments to be scoped.
+Ignoring the return value both inside the nanoroutine and in its usage lets you not use a return value.
+
+```
+% Similar to a while-loop:
+
+nanoroutine #() while_less_than_ten e:#() :
+    if e<10:
+        % Do actual work...
+        
+        while_less_than_ten e+1;
+    .
+    if e==10:
+        e; % Return value.
+    .
+.
+
+% Using it...
+assigned ten:#(while_less_than_ten 0);
+
+% Fibonnaci loop/nanoroutine.
+% Note that there is no return statement, here it is a variable used for the return value.
+
+nanoroutine 8() fibonacci x:8() :
+    unassigned return:8();
+    if x<3:
+        return = 1;
+    .
+    if x>=3:
+        return = (fibonacci x-1) + (fibonacci x-2);
+    .
+    return;
+.
+
+
+
+```
+
 Small Example Programs
 ----------------------
 
@@ -165,15 +231,17 @@ This is primarily useful for language devs, but it may be useful to others as we
 
 ```
 <tempest_program> ::= <identifier> ':' <subroutine>+ '.'
-<subroutine> ::= "subroutine" <type> <identifier> <variable>+ ':' [<variable> | <declaration> | <assignment> | <nanoroutine> ]* .
-<nanoroutine> ::= "nanoroutine" <type> <identifier> <variable>+ ':' [<variable> | <declaration> | <assignment> ]* .
+<subroutine> ::= "subroutine" <type> <identifier> <variable>+ ':' [ <statement> | <nanoroutine> ]* .
+<nanoroutine> ::= "nanoroutine" <type> <identifier> <variable>+ ':' [<statement>]* .
+
+<statement> ::= <variable_decl> | <declaration_decl> | <branch> | <assignment>
 
 <value> ::= <integral_value> | <scalar_value> | <complex_value>
 
 <expression> ::= ['-'] <term> [ <add_op> <term> ]*
 <add_op> ::= '-' | '+'
 <term> ::= <factor> [ <mult_op> <factor> ]*
-<mult_op> ::= '/' | '*' | '%'
+<mult_op> ::= '/' | '*' | '@'
 <factor> ::= <number> | <variable> | <call> | <access> | '(' <expression> ')'
 
 <number> ::= <hexadecimal_literal> | <decimal_literal> | <octal_literal>
@@ -192,13 +260,15 @@ This is primarily useful for language devs, but it may be useful to others as we
 <variable> ::= <identifier> ':' <type>
 
 <declaration_decl> ::= "assigned" <declaration> ';'
-<declaration> ::= <identifier> ':' <expression>
+<declaration> ::= <identifier> ':' <value>
 
-<assignment> ::= <identifier> '=' <expression> ';'
+<assignment> ::= <identifier> '=' <value> ';'
+
+<branch> ::= "if" <expresssion> ':' <statement>* '.'
 
 <identifier> ::= <'a'-'z' | 'A'-'Z'> [ <'a'-'z' | 'A'-'Z' | '1'-'9' | '0' | '_' ]*
 
-<call> ::= <identifier> '(' [ <expression> [, <expression> ]* ] ')'
+<call> ::= <identifier> <expression> [, <expression> ]*
 <access> ::= <identifier> '[' <expression> ']'
 ```
 

@@ -25,11 +25,8 @@ void Identifier(CPU &cpu, IO &io, struct Unit &unit){
         const std::string jl = "if_label_" + std::to_string(unit.label_index);
         unit.label_index++;
         
-        io.match('(');
-        
         Expression(cpu, io, unit);
-        
-        io.match(')');
+
         io.skipWhitespace();
         io.match(':');
         io.emitLine(cpu.jumpZero(jl, "if-statement begin"));
