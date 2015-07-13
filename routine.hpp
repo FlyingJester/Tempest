@@ -1,6 +1,7 @@
 #pragma once
 #include "type.hpp"
 #include "variable.hpp"
+#include "assignment.hpp"
 #include "declaration.hpp"
 #include "expression.hpp"
 #include "cpu.hpp"
@@ -36,16 +37,16 @@ void Identifier(CPU &cpu, IO &io, struct Unit &unit){
             Identifier<Sub>(cpu, io, unit);
         }while(!io.peek('.'));
         io.skipWhitespace();
-        io.emitLine(cpu.label(jl, "if-statement end"));
         io.match('.');
+        io.emitLine(cpu.label(jl, "if-statement end"));
     }
     else{
         if(name=="assigned")
             Declaration(cpu, io, unit);
         else if(name=="unassigned")
             Variable(cpu, io, unit);
-       // else
-       //     Assignment(cpu, io, unit, name);
+        else
+            Assignment(cpu, io, unit, name);
         io.match(';');
         io.skipWhitespace();
     }
@@ -54,7 +55,7 @@ void Identifier(CPU &cpu, IO &io, struct Unit &unit){
 template<RoutineType RT, bool Prefixed>
 void Routine(CPU &cpu, IO &io, struct Unit &unit){
     io.skipWhitespace();
-    if(Prefixed && io.getName() != ((RT==Nano)?"nanoroutine":"subroutine")) io.expected("Declarator `subroutine'");
+    if(Prefixed && io.getName() != ((RT==Nano)?"nanoroutine":"subroutine")) io.expected("Declarator for routine");
 
     io.skipWhitespace();
     struct VariableType return_type = Type(cpu, io, unit);
@@ -63,7 +64,11 @@ void Routine(CPU &cpu, IO &io, struct Unit &unit){
     io.emitLine(cpu.label(name, "subroutine"));
 
     struct Symbol<FunctionType> symbol = {{return_type, {}, {}}, name};
-    unit.Functions.push_back(symbol);
+    
+    if(RT==Sub)
+        unit.Subroutines.push_back(symbol);
+    else
+        unit.Nanoroutines.push_back(symbol);
 
     io.match(':');
     io.skipWhitespace();
@@ -75,9 +80,12 @@ void Routine(CPU &cpu, IO &io, struct Unit &unit){
     
     io.match('.');
     
+    io.emitLine(cpu.ret(RT==Sub?"Subroutine":"Nanoroutine"));
+    
     /* TODO: Write variables */
-    if(RT!=Sub)
-        unit.Functions.pop_back();
+    if(RT!=Sub){
+        unit.Nanoroutines.pop_back();
+    }
     else
         unit.label_index = 0;
 

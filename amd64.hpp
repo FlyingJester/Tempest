@@ -27,11 +27,26 @@ public:
     std::string divide(const std::string &note) override;
     std::string remainder(const std::string &note) override;
 
+    std::string negateBool(const std::string &note) override;
+    std::string andBool(const std::string &note) override;
+    std::string orBool(const std::string &note) override;
+    std::string xorBool(const std::string &note) override;
+    
+    std::string lessThan(const std::string &note) override;    
+    std::string lessThanOrEqual(const std::string &note) override;
+    std::string greaterThan(const std::string &note) override;
+    std::string greaterThanOrEqual(const std::string &note) override;
+    std::string equal(const std::string &note) override;
+    std::string notEqual(const std::string &note) override;
+    
     std::string jumpZero(const std::string &label, const std::string &note) override;
+    std::string ret(const std::string &note) override;
     
     std::string beginCode(const struct Unit &unit) override;
     std::string beginData(const struct Unit &unit) override;
     std::string writeVariables(const struct Unit &unit) override;
+    std::string writeNanoVariables(const struct Unit &unit) override;
+    std::string writeFunctions(const struct Unit &unit) override;
     
 };
 

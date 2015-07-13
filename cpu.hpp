@@ -24,9 +24,38 @@ public:
     virtual std::string divide(const std::string &note) = 0;
     virtual std::string remainder(const std::string &note) = 0;
     
+    virtual std::string negateBool(const std::string &note) = 0;
+    virtual std::string andBool(const std::string &note) = 0;
+    virtual std::string orBool(const std::string &note) = 0;
+    virtual std::string xorBool(const std::string &note) = 0;
+    virtual std::string nandBool(const std::string &note){
+        return andBool(note) + '\n' +
+        negateBool(note);
+    }
+    
+    virtual std::string lessThan(const std::string &note) = 0;
+    virtual std::string greaterThan(const std::string &note) = 0;
+    virtual std::string equal(const std::string &note) = 0;
+    
+    virtual std::string lessThanOrEqual(const std::string &note){
+        return greaterThan(note) + '\n' +
+        negateBool(note);
+    }
+    
+    virtual std::string greaterThanOrEqual(const std::string &note){
+        return lessThan(note) + '\n' +
+        negateBool(note);
+    }
+    
+    virtual std::string notEqual(const std::string &note){
+        return equal(note) + '\n' +
+        negateBool(note);
+    }
+    
     virtual unsigned pointerSize() const { return 8; }
     virtual unsigned nativeWordSize() const { return 8; }
     virtual std::string jumpZero(const std::string &label, const std::string &note) = 0;
+    virtual std::string ret(const std::string &note) = 0;
     
     virtual std::string label(const std::string &l, const std::string &){
         return l + ':';
@@ -35,6 +64,8 @@ public:
     virtual std::string beginCode(const struct Unit &unit) = 0;
     virtual std::string beginData(const struct Unit &unit) = 0;
     virtual std::string writeVariables(const struct Unit &unit) = 0;
+    virtual std::string writeNanoVariables(const struct Unit &unit) = 0;
+    virtual std::string writeFunctions(const struct Unit &unit) = 0;
     
     static CPU *createCPU(std::string name);
 

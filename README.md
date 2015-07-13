@@ -15,7 +15,7 @@ Features still unimplemented:
  * Function Arguments
  * Function Calls
  * Vector Operations
- * Name Complex Fields
+ * Names Complex Fields
  * Floating Point Operations
 
 Pluto Language Description
@@ -236,7 +236,7 @@ This is primarily useful for language devs, but it may be useful to others as we
 
 <statement> ::= <variable_decl> | <declaration_decl> | <branch> | <assignment>
 
-<value> ::= <integral_value> | <scalar_value> | <complex_value>
+<value> ::= <literal_value> | <integral_value> | <scalar_value> | <complex_value>
 
 <expression> ::= ['-'] <term> [ <add_op> <term> ]*
 <add_op> ::= '-' | '+'
@@ -264,7 +264,12 @@ This is primarily useful for language devs, but it may be useful to others as we
 
 <assignment> ::= <identifier> '=' <value> ';'
 
-<branch> ::= "if" <expresssion> ':' <statement>* '.'
+<branch> ::= "if" <boolean> ':' <statement>* '.'
+
+<boolean> ::= ['!'] '(' <bool_expression> ')' [ <bool_op> <boolean> ]*
+<bool_op> ::= "&&" | "||" | "^^" | "<>"
+<bool_expression> ::= <expression> <comparison> <expression>
+<comparison> ::= "<" | "<=" | ">=" | ">" | "==" | "!="
 
 <identifier> ::= <'a'-'z' | 'A'-'Z'> [ <'a'-'z' | 'A'-'Z' | '1'-'9' | '0' | '_' ]*
 

@@ -7,8 +7,11 @@
 namespace Tempest {
 
 struct Unit{
+
+    typedef std::vector<struct Symbol<FunctionType> > function_holder;
+
     std::string name;
-    std::vector<struct Symbol<FunctionType> > Functions;
+    function_holder Subroutines, Nanoroutines;
     uint64_t label_index;
 };
 

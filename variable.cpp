@@ -13,7 +13,10 @@ void Variable(CPU &cpu, IO &io, struct Unit &unit){
     io.skipWhitespace();
 
     struct Symbol<struct VariableType> variable = {Type(cpu, io, unit), name};
-    unit.Functions.back().symbol.inner_variables.push_back(variable);
+    if(unit.Nanoroutines.empty())
+        unit.Subroutines.back().symbol.inner_variables.push_back(variable);
+    else
+        unit.Nanoroutines.back().symbol.inner_variables.push_back(variable);
 
     io.skipWhitespace();
 

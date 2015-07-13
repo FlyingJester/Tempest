@@ -9,8 +9,8 @@ environment.Append(
     LINKFLAGS = " -g ")
 
 libtempest = environment.StaticLibrary("tempest", 
-    ["program.cpp", "type.cpp", "declaration.cpp", "variable.cpp",
-    "expression.cpp", "term.cpp", "factor.cpp",
+    ["program.cpp", "type.cpp", "declaration.cpp", "variable.cpp", "assignment.cpp",
+    "expression.cpp", "term.cpp", "factor.cpp", "boolean.cpp",
     "unit.cpp", "io.cpp", "cpu.cpp", "amd64.cpp"]
 )
     

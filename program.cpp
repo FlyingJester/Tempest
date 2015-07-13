@@ -24,6 +24,8 @@ void Program(CPU &cpu, IO &io, struct Unit &unit){
     
     io.match('.');
     
+    io.emitLine(cpu.writeFunctions(unit));
+        
     io.emitLine(cpu.beginData(unit));
     io.emitLine(cpu.writeVariables(unit));
     

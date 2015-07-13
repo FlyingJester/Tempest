@@ -14,8 +14,11 @@ void Declaration(CPU &cpu, IO &io, struct Unit &unit){
     io.skipWhitespace();
 
     struct Symbol<struct VariableType> variable = {{VariableType::integral, cpu.nativeWordSize(), 1}, name};
-    unit.Functions.back().symbol.inner_variables.push_back(variable);
     
+    if(unit.Nanoroutines.empty())
+        unit.Subroutines.back().symbol.inner_variables.push_back(variable);
+    else
+        unit.Nanoroutines.back().symbol.inner_variables.push_back(variable);
     Expression(cpu, io, unit);
     
     io.emitLine(cpu.storeVariable(name, "Declaration"));
